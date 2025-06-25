@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"args": [],
+			"command": "cd /home/saga/Desktop/Web_scrapping/frontend && npm install && npm run dev",
+			"group": "npm",
+			"isBackground": true,
+			"label": "Run Frontend",
+			"problemMatcher": [
+				"$npm-tsc"
+			],
+			"type": "shell"
+		}
+	]
+}
