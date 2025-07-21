@@ -59,7 +59,7 @@ Run this from the root folder:
 ### Using `python`:
 
 ```bash
-pip install -r scraper/requirements.txt
+pip install -r scraper/new_venv/requirements.txt
 ```
 
 ### Or if `python3` is required:
