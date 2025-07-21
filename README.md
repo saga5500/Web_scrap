@@ -89,13 +89,13 @@ python3 supabase/verify_connection.py
 Run this from the root folder:
 
 ```bash
-python scraper/scrape.py
+python scraper/new_scape/scrape.py
 ```
 
 *Or if `python3` is required:*
 
 ```bash
-python3 scraper/scrape.py
+python3 scraper/new_scrape/scrape.py
 ```
 
 ## 🖥️ Start the Frontend (Next.js)
