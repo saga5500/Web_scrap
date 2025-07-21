@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import JobList from './JobList';
 import { fetchJobs } from '../../utils/jobs';
 
-export default function JobListContainer({ initialFilters = {} }) {
+export default function JobListContainer({ initialFilters = {}, onJobCountChange }) {
   const [jobs, setJobs] = useState([]);
   const [pagination, setPagination] = useState({
     currentPage: 1,
@@ -32,6 +32,11 @@ export default function JobListContainer({ initialFilters = {} }) {
         totalPages,
         totalJobs: count
       }));
+      
+      // Update parent component with the latest job count
+      if (onJobCountChange) {
+        onJobCountChange(count);
+      }
     } catch (err) {
       setError('Failed to load jobs. Please try again later.');
       console.error(err);
@@ -83,9 +88,10 @@ export default function JobListContainer({ initialFilters = {} }) {
 
   return (
     <JobList 
-      jobs={jobs} 
+      jobs={jobs}
       currentPage={pagination.currentPage}
       totalPages={pagination.totalPages}
+      totalJobs={pagination.totalJobs}
       onPageChange={handlePageChange}
     />
   );

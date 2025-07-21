@@ -12,9 +12,6 @@ create table if not exists jobs (
   created_at timestamp with time zone default timezone('utc', now())
 );
 
--- Create index for faster searches
-create index if not exists idx_jobs_company on jobs(company);
-create index if not exists idx_jobs_date_posted on jobs(date_posted);
 
 -- Add a comment to the table for documentation
 comment on table jobs is 'Remote job listings scraped from RemoteOK';

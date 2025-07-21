@@ -6,7 +6,7 @@ import JobCard from './JobCard';
 // Memoize the JobCard component to prevent unnecessary re-renders
 const MemoizedJobCard = memo(JobCard);
 
-function JobList({ jobs, currentPage, totalPages, onPageChange }) {
+function JobList({ jobs, currentPage, totalPages, totalJobs, onPageChange }) {
   // Memoize the job cards to prevent re-rendering when parent re-renders
   const jobCards = useMemo(() => {
     return jobs.map(job => (
@@ -14,45 +14,114 @@ function JobList({ jobs, currentPage, totalPages, onPageChange }) {
     ));
   }, [jobs]);
 
+  // Generate pagination range with fixed number of pages
+  const getPaginationRange = (current, total) => {
+    const range = [];
+    const maxPages = 6; // Show max 6 page numbers
+    
+    if (total <= maxPages) {
+      // If total pages are less than max, show all
+      for (let i = 1; i <= total; i++) {
+        range.push(i);
+      }
+    } else {
+      // Always include first page
+      range.push(1);
+      
+      // Calculate start and end pages
+      let startPage = Math.max(2, current - 1);
+      let endPage = Math.min(total - 1, startPage + 3);
+      
+      // Adjust if we're at the end
+      if (endPage === total - 1) {
+        startPage = Math.max(2, endPage - 3);
+      }
+      
+      // Add ellipsis after first page if needed
+      if (startPage > 2) {
+        range.push('...');
+      }
+      
+      // Add middle pages
+      for (let i = startPage; i <= endPage; i++) {
+        range.push(i);
+      }
+      
+      // Add ellipsis before last page if needed
+      if (endPage < total - 1) {
+        range.push('...');
+      }
+      
+      // Always include last page
+      range.push(total);
+    }
+    
+    return range;
+  };
+
   // Memoize pagination buttons
   const paginationButtons = useMemo(() => {
     if (totalPages <= 1) return null;
 
+    const pages = getPaginationRange(currentPage, totalPages);
+    const prevDisabled = currentPage === 1;
+    const nextDisabled = currentPage === totalPages;
+    
     return (
-      <div className="flex justify-center space-x-2 my-6">
+      <nav className="flex items-center justify-center space-x-1 mt-8">
         <button
           onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50 hover:bg-gray-50 transition-colors"
-          aria-label="Previous page"
+          disabled={prevDisabled}
+          className={`px-3 py-2 rounded-md text-sm font-medium ${
+            prevDisabled 
+              ? 'text-gray-300 cursor-not-allowed' 
+              : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+          }`}
         >
-          Previous
+          <span className="sr-only">Previous</span>
+          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
         </button>
         
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-          <button
-            key={page}
-            onClick={() => onPageChange(page)}
-            className={`px-3 py-1 rounded transition-colors ${
-              currentPage === page
-                ? 'bg-blue-600 text-white'
-                : 'border border-gray-300 hover:bg-gray-50'
-            }`}
-            aria-current={currentPage === page ? 'page' : undefined}
-          >
-            {page}
-          </button>
-        ))}
+        <div className="flex -space-x-px">
+          {pages.map((page, index) => 
+            page === '...' ? (
+              <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-500">
+                ...
+              </span>
+            ) : (
+              <button
+                key={page}
+                onClick={() => onPageChange(page)}
+                className={`min-w-[2.5rem] px-3 py-2 text-sm font-medium ${
+                  currentPage === page
+                    ? 'bg-blue-50 text-blue-600 border-blue-500 border-t-2'
+                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+                }`}
+                aria-current={currentPage === page ? 'page' : undefined}
+              >
+                {page}
+              </button>
+            )
+          )}
+        </div>
         
         <button
           onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="px-3 py-1 rounded border border-gray-300 disabled:opacity-50 hover:bg-gray-50 transition-colors"
-          aria-label="Next page"
+          disabled={nextDisabled}
+          className={`px-3 py-2 rounded-md text-sm font-medium ${
+            nextDisabled 
+              ? 'text-gray-300 cursor-not-allowed' 
+              : 'text-gray-500 hover:bg-gray-50 hover:text-gray-700'
+          }`}
         >
-          Next
+          <span className="sr-only">Next</span>
+          <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+          </svg>
         </button>
-      </div>
+      </nav>
     );
   }, [currentPage, totalPages, onPageChange]);
 
@@ -66,7 +135,7 @@ function JobList({ jobs, currentPage, totalPages, onPageChange }) {
   }
   
   return (
-    <div>
+    <div className="space-y-4">
       <div className="grid grid-cols-1 gap-6 mb-8">
         {jobCards}
       </div>
@@ -80,6 +149,8 @@ export default memo(JobList, (prevProps, nextProps) => {
   return (
     prevProps.jobs === nextProps.jobs &&
     prevProps.currentPage === nextProps.currentPage &&
-    prevProps.totalPages === nextProps.totalPages
+    prevProps.totalPages === nextProps.totalPages &&
+    prevProps.totalJobs === nextProps.totalJobs &&
+    prevProps.onPageChange === nextProps.onPageChange
   );
 });
