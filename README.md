@@ -65,7 +65,7 @@ pip install -r scraper/requirements.txt
 ### Or if `python3` is required:
 
 ```bash
-python3 -m pip install -r scraper/requirements.txt
+python3 -m pip install -r scraper/new_venv/requirements.txt
 ```
 
 ## 4. Verify Supabase Connection (Optional)
